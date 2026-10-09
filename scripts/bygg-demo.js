@@ -46,9 +46,9 @@ function main() {
   const ekte = window.fetch.bind(window);
   window.fetch = async (url, opts = {}) => {
     const u = String(url);
-    if (u === '/api/oppmotesteder') return svar(200, STEDER);
-    if (u === '/api/konfig') return svar(200, { personvernUrl: 'https://www.tvaksjonen.no/personvern' });
-    if (u === '/api/registrering') {
+    if (u.endsWith('oppmotesteder')) return svar(200, STEDER);
+    if (u.endsWith('konfig')) return svar(200, { personvernUrl: 'https://www.tvaksjonen.no/personvern' });
+    if (u.endsWith('registrering')) {
       await new Promise((r) => setTimeout(r, 400));
       const b = JSON.parse(opts.body || '{}');
       const epost = String(b.epost || '').trim().toLowerCase();

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Påmeldinger – backup (admin)</title>
+  <link rel="stylesheet" href="admin.css">
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Påmeldinger i backup-løsningen</h1>
+
+    <section id="innlogging" hidden>
+      <form id="logginn-skjema" class="kort" novalidate>
+        <label for="passord">Admin-passord</label>
+        <input id="passord" name="passord" type="password" autocomplete="current-password" required>
+        <p id="logginn-feil" class="feil" role="alert" hidden></p>
+        <button type="submit" class="knapp" id="logginn-knapp">Logg inn</button>
+      </form>
+    </section>
+
+    <section id="oversikt" hidden>
+      <p class="kpi"><span id="totalt">–</span> påmeldte totalt</p>
+      <p class="liten" id="siste"></p>
+      <div class="handlinger">
+        <a class="knapp" href="api.php?handling=eksport" id="eksport">Last ned alle påmeldinger (CSV)</a>
+        <button type="button" class="knapp knapp--sekundar" id="oppdater">Oppdater</button>
+        <button type="button" class="knapp knapp--sekundar" id="loggut">Logg ut</button>
+      </div>
+      <p id="oversikt-feil" class="feil" role="alert" hidden></p>
+      <table>
+        <thead><tr><th scope="col">Fylke/storby</th><th scope="col" class="tall">Påmeldte</th></tr></thead>
+        <tbody id="fylker"></tbody>
+      </table>
+      <p class="liten">Tallene gjelder kun påmeldinger gjort i backup-løsningen, ikke i Aksjonsportalen.
+        Slett påmeldingene når de er overført.</p>
+    </section>
+
+    <p id="laster" class="liten">Laster …</p>
+  </main>
+</body>
+</html>

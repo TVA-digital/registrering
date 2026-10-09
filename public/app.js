@@ -6,6 +6,11 @@
   const VIEWS = ['start', 'sted', 'skjema', 'takk'];
   const FELT = ['fornavn', 'etternavn', 'epost', 'telefon', 'fodselsar'];
 
+  // Node-serveren bruker /api/*, PHP-pakken (webhotell) bruker api.php. Velges med <html data-api="php">.
+  const API = document.documentElement.dataset.api === 'php'
+    ? { steder: 'api.php?handling=oppmotesteder', registrering: 'api.php?handling=registrering', konfig: 'api.php?handling=konfig' }
+    : { steder: '/api/oppmotesteder', registrering: '/api/registrering', konfig: '/api/konfig' };
+
   const $ = (id) => document.getElementById(id);
   const collator = new Intl.Collator('nb');
 
@@ -100,7 +105,7 @@
 
     state.lasting = (async () => {
       try {
-        const res = await hentJson('/api/oppmotesteder');
+        const res = await hentJson(API.steder);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const steder = await res.json();
         if (!Array.isArray(steder) || steder.length === 0) throw new Error('Tom liste');
@@ -266,7 +271,7 @@
     knapp.textContent = 'Registrerer …';
 
     try {
-      const res = await fetch('/api/registrering', {
+      const res = await fetch(API.registrering, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
@@ -354,7 +359,7 @@
     window.addEventListener('popstate', () => visView());
     window.addEventListener('hashchange', () => visView());
 
-    fetch('/api/konfig')
+    fetch(API.konfig)
       .then((r) => (r.ok ? r.json() : null))
       .then((k) => { if (k && /^https:\/\//.test(k.personvernUrl)) $('personvern-lenke').href = k.personvernUrl; })
       .catch(() => { /* standardlenken i HTML brukes */ });

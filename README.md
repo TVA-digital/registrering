@@ -28,6 +28,22 @@ Scriptet tar bare med steder som er åpne og ikke skjult (bruk `--inkluder-steng
 
 Kapasiteten regnes slik: Står «Automatisk stenging» på et sted, tar backupen imot påmeldinger til antall påmeldte i eksporten pluss påmeldingene i backupen når «Ønsket antall bøssebærere». Deretter vises stedet som fullt med «Fullt tilleggstekst». Steder uten automatisk stenging stenges aldri. Importer en fersk eksport rett før backupen aktiveres, så tallene stemmer best mulig.
 
+## Webhotell med PHP (enklest)
+
+Har dere et vanlig webhotell med PHP, for eksempel Domeneshop, One.com eller Webhuset, kan løsningen lastes opp som filer. Den trenger ingen Node.js og ingen egen server.
+
+```bash
+node scripts/bygg-php.js     # → dist/pamelding-backup.zip
+```
+
+Zip-fila har `index.html` (påmeldingen), `admin.html` (oversikt og CSV-eksport), `api.php`, `config.php` og `sjekk.php`. Den inneholder også en `data/`-mappe som er sperret med `.htaccess`. Der havner SQLite-databasen, med et tilfeldig filnavn. Fremgangsmåten står i `LES-MEG.txt`:
+
+1. Bytt passordet i `config.php`.
+2. Last opp mappen.
+3. Åpne `sjekk.php`, og slett den når alt er grønt.
+
+Krav: PHP 7.4 eller nyere med `pdo_sqlite`, Apache med `.htaccess`, og HTTPS. Kildefilene ligger i `php/`.
+
 ## Drift på Google Cloud (anbefalt)
 
 Løsningen er laget for Cloud Run med Firestore som database. Den skalerer automatisk ved stor pågang. Unik e-post og kapasitet per oppmøtested håndheves i én Firestore-transaksjon, så det holder også med mange instanser samtidig.
