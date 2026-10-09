@@ -1,0 +1,8 @@
+node_modules/
+var/
+*.db
+*.db-*
+.env
+# Rå eksport fra Aksjonsportalen inneholder personopplysninger om oppmøteansvarlige – skal ikke i git
+data/raw/
+*.csv

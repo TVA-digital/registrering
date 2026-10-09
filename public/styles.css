@@ -1,0 +1,290 @@
+:root {
+  --bg: #f4f4f4;
+  --tekst: #1f1f1f;
+  --tekst-dempet: #555;
+  --marine: #0d203b;
+  --marine-hover: #1b355c;
+  --laks: #ff9384;
+  --laks-hover: #ff7d6b;
+  --oransje: #fc4f00;
+  --lysblaa: #d7effc;
+  --hvit: #ffffff;
+  --kant: #bcbcbc;
+  --deaktivert-bg: #e9e9e9;
+  --deaktivert-tekst: #a3a3a3;
+  --lenke: #1565c0;
+  --feil: #b3261e;
+  --feil-bg: #fdecea;
+  --info-bg: #fff4e5;
+  --font: Arial, Helvetica, sans-serif;
+  --skygge: 0 2px 8px rgba(0, 0, 0, 0.12);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tekst);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.side {
+  max-width: 540px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+.view[hidden] { display: none; }
+
+.visuelt-skjult {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Hero-bilder */
+.hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Kort som ligger over hero-bildet */
+.kort {
+  position: relative;
+  /* Prosent av bredden, slik at overlappen skalerer med bildet */
+  margin: -11% 10% 0;
+  background: var(--hvit);
+  border-radius: 8px;
+  box-shadow: var(--skygge);
+  overflow: hidden;
+}
+.kort--erklaering { margin: -34% 9% 0; }
+
+.kort__topp {
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 12px;
+}
+.kort__topp--tekst {
+  display: block;
+  padding: 18px 20px 14px;
+  text-align: center;
+}
+.kort__topp--tekst p { margin: 0 0 4px; }
+
+.kampanje { width: 100%; max-width: 331px; height: auto; }
+
+.erklaering {
+  margin: 0 0 22px;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.kort__band {
+  background: var(--lysblaa);
+  padding: 20px 16px;
+  text-align: center;
+  color: var(--marine);
+  font-size: 0.95rem;
+}
+.kort__band--fet {
+  padding: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--tekst);
+  letter-spacing: 0.02em;
+}
+.hjerte-omriss { font-size: 1.05rem; }
+.hjerte { color: var(--oransje); font-size: 1.35rem; vertical-align: -2px; margin-left: 4px; }
+
+/* Innhold */
+.innhold { padding: 24px 12px 40px; }
+.innhold--sentrert { text-align: center; padding: 34px 20px 48px; }
+.innhold--sentrert p { margin: 0 0 14px; }
+
+h1 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin: 0 0 14px;
+}
+
+.eller { text-align: center; margin: 0 0 24px; }
+
+/* Knapper */
+.knapp {
+  display: inline-block;
+  border: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.knapp:focus-visible, .lenkeknapp:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 3px solid var(--oransje);
+  outline-offset: 2px;
+}
+.knapp--laks {
+  margin-top: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--laks);
+  color: var(--marine);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+.knapp--laks:hover { background: var(--laks-hover); }
+
+.knapp--marine {
+  padding: 12px 22px;
+  border-radius: 4px;
+  background: var(--marine);
+  color: var(--hvit);
+}
+.knapp--marine:hover:not(:disabled) { background: var(--marine-hover); }
+.knapp:disabled {
+  background: var(--deaktivert-bg);
+  color: var(--deaktivert-tekst);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.knapp--firkant { padding: 12px 22px; }
+.knapp[aria-busy="true"] { cursor: progress; opacity: 0.8; }
+
+.knapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.lenkeknapp {
+  border: 0;
+  background: none;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--marine);
+  cursor: pointer;
+}
+.lenkeknapp:hover { text-decoration: underline; }
+
+/* Skjemafelt i "outlined"-stil med flytende etikett */
+.felt {
+  position: relative;
+  margin-bottom: 24px;
+}
+.felt input,
+.felt select {
+  display: block;
+  width: 100%;
+  height: 56px;
+  padding: 18px 14px 6px;
+  border: 1px solid var(--kant);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--tekst);
+  font: inherit;
+  font-size: 1rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.felt--select select {
+  padding: 22px 40px 6px 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5'%3E%3Cpath d='M0 0h10L5 5z' fill='%23555'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  cursor: pointer;
+}
+.felt select:disabled { cursor: not-allowed; color: var(--deaktivert-tekst); }
+.felt input:hover, .felt select:hover:not(:disabled) { border-color: var(--tekst); }
+.felt input:focus, .felt select:focus { border: 2px solid var(--marine); outline: none; padding-left: 13px; }
+
+.felt label {
+  position: absolute;
+  left: 14px;
+  top: 18px;
+  color: var(--tekst-dempet);
+  pointer-events: none;
+  transition: all 0.12s ease-out;
+}
+/* Flytt etiketten opp når feltet har verdi eller fokus */
+.felt input:focus + label,
+.felt input:not(:placeholder-shown) + label,
+.felt--select label {
+  top: -9px;
+  left: 10px;
+  padding: 0 4px;
+  font-size: 0.75rem;
+  background: var(--bg);
+  color: var(--tekst-dempet);
+}
+.felt input:focus + label, .felt select:focus + label { color: var(--marine); }
+.felt--select select:disabled + label { color: var(--deaktivert-tekst); }
+
+.felt input[aria-invalid="true"] { border: 2px solid var(--feil); padding-left: 13px; }
+.felt input[aria-invalid="true"] + label { color: var(--feil); }
+
+.hjelp {
+  margin: 6px 0 0 2px;
+  font-size: 0.8rem;
+  color: var(--tekst-dempet);
+}
+.feilmelding { color: var(--feil); font-weight: 700; }
+
+.samtykke {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin: 40px 0 0;
+}
+.samtykke input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 0 0 0 4px;
+  accent-color: var(--marine);
+  cursor: pointer;
+}
+.samtykke label { font-size: 0.95rem; cursor: pointer; }
+.samtykke a { color: var(--lenke); }
+
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Detaljer om oppmøtested */
+.detaljer p { margin: 0 0 8px; }
+.detaljer #d-tilgj-blokk p:first-child { margin-bottom: 0; }
+
+.varsel {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: var(--info-bg);
+  border-left: 4px solid var(--oransje);
+}
+.varsel--feil {
+  margin: 0 0 20px;
+  background: var(--feil-bg);
+  border-left-color: var(--feil);
+}
+.varsel:focus { outline: none; }
+
+@media (max-width: 380px) {
+  .kort { margin-left: 6%; margin-right: 6%; }
+  h1 { font-size: 1.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

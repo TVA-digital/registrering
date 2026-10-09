@@ -1,0 +1,23 @@
+{
+  "name": "pamelding-backup",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backup-løsning for påmelding av bøssebærere til NRK TV-aksjonen",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
+    "import": "node scripts/import-oppmotesteder.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "express": "^5.1.0"
+  },
+  "optionalDependencies": {
+    "@google-cloud/firestore": "^9.3.1"
+  }
+}

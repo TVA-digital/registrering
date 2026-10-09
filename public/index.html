@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bli bøssebærer – NRK TV-aksjonen</title>
+  <meta name="description" content="Meld deg på som bøssebærer søndag 18. oktober. Vi går sammen for mennesker på flukt.">
+  <meta name="theme-color" content="#0d203b">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main id="app" class="side">
+
+    <!-- VIEW 1: Forside -->
+    <section id="view-start" class="view" aria-labelledby="start-tittel">
+      <div class="hero"><img src="/img/hero-1.jpg" alt="En voksen og et barn går hånd i hånd blant ruiner." width="512" height="262"></div>
+      <div class="kort kort--kampanje">
+        <div class="kort__topp">
+          <img class="kampanje" src="/img/kampanje.png" width="331" height="122"
+               alt="NRC Flyktninghjelpen og NRK TV-aksjonen: Gi et trygt sted å sove.">
+        </div>
+        <div class="kort__band">Søndag 18. oktober <span class="hjerte-omriss" aria-hidden="true">♡</span></div>
+      </div>
+      <div class="innhold innhold--sentrert">
+        <h1 id="start-tittel">To timer. En viktig forskjell.</h1>
+        <p>Som bøssebærer går du fra dør til dør i nabolaget ditt. En bøsse samler inn i snitt 2300 kr, og mange gir kontanter eller med Vipps.</p>
+        <p>Vi går sammen for mennesker på flukt.</p>
+        <button type="button" class="knapp knapp--laks" data-gaa="sted">Ja, jeg vil gå med bøsse</button>
+      </div>
+    </section>
+
+    <!-- VIEW 2: Velg oppmøtested -->
+    <section id="view-sted" class="view" hidden aria-labelledby="sted-tittel">
+      <div class="hero hero--hoy"><img src="/img/hero-2.jpg" alt="To barn ringer på en dørklokke." width="531" height="378"></div>
+      <div class="innhold">
+        <h1 id="sted-tittel" class="visuelt-skjult">Velg oppmøtested</h1>
+        <p class="eller">Velg oppmøtested under</p>
+
+        <div id="sted-lastefeil" class="varsel varsel--feil" role="alert" hidden></div>
+
+        <div class="felt felt--select">
+          <select id="fylke" required aria-describedby="sted-lastefeil">
+            <option value="" disabled selected></option>
+          </select>
+          <label for="fylke">Fylke/storby</label>
+        </div>
+        <div class="felt felt--select">
+          <select id="kommune" required disabled>
+            <option value="" disabled selected></option>
+          </select>
+          <label for="kommune">Kommune/område</label>
+        </div>
+        <div class="felt felt--select">
+          <select id="sted" required disabled>
+            <option value="" disabled selected></option>
+          </select>
+          <label for="sted">Oppmøtested</label>
+        </div>
+
+        <div id="sted-detaljer" class="detaljer" hidden aria-live="polite">
+          <p><strong>Oppmøte:</strong> <span id="d-tid"></span></p>
+          <p><strong>Adresse:</strong> <span id="d-adresse"></span></p>
+          <div id="d-tilgj-blokk">
+            <p><strong>Tilgjengelighet:</strong></p>
+            <p id="d-tilgj"></p>
+          </div>
+          <div id="d-fullt" class="varsel" role="status" hidden></div>
+        </div>
+
+        <div class="knapper">
+          <button type="button" id="til-skjema" class="knapp knapp--marine" disabled>Registrer med e-post</button>
+          <button type="button" class="lenkeknapp" data-gaa="start">Tilbake</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: Skjema -->
+    <section id="view-skjema" class="view" hidden aria-labelledby="skjema-tittel">
+      <div class="hero hero--hoy"><img src="/img/hero-2.jpg" alt="To barn ringer på en dørklokke." width="531" height="378"></div>
+      <div class="kort kort--erklaering">
+        <div class="kort__topp kort__topp--tekst">
+          <h1 id="skjema-tittel" class="erklaering">Jeg vil gå med bøsse fra dør til dør i to timer søndag 18. oktober.</h1>
+          <p>Vi går sammen for mennesker på flukt.</p>
+        </div>
+        <div class="kort__band kort__band--fet">Jeg er med <span class="hjerte" aria-hidden="true">♥</span></div>
+      </div>
+
+      <form id="skjema" class="innhold skjema" novalidate>
+        <div id="skjema-feil" class="varsel varsel--feil" role="alert" tabindex="-1" hidden></div>
+
+        <div class="felt">
+          <input id="fornavn" name="fornavn" type="text" autocomplete="given-name" maxlength="60" placeholder=" " required>
+          <label for="fornavn">Fornavn</label>
+          <p class="hjelp feilmelding" id="fornavn-feil" hidden></p>
+        </div>
+        <div class="felt">
+          <input id="etternavn" name="etternavn" type="text" autocomplete="family-name" maxlength="60" placeholder=" " required>
+          <label for="etternavn">Etternavn</label>
+          <p class="hjelp feilmelding" id="etternavn-feil" hidden></p>
+        </div>
+        <div class="felt">
+          <input id="epost" name="epost" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder=" " required aria-describedby="epost-hjelp">
+          <label for="epost">E-postadresse</label>
+          <p class="hjelp" id="epost-hjelp">En e-postadresse kan kun brukes én gang</p>
+          <p class="hjelp feilmelding" id="epost-feil" hidden></p>
+        </div>
+        <div class="felt">
+          <input id="telefon" name="telefon" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder=" " required>
+          <label for="telefon">Telefonnummer</label>
+          <p class="hjelp feilmelding" id="telefon-feil" hidden></p>
+        </div>
+        <div class="felt">
+          <input id="fodselsar" name="fodselsar" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="bday-year" placeholder=" " required aria-describedby="fodselsar-hjelp">
+          <label for="fodselsar">Fødselsår</label>
+          <p class="hjelp" id="fodselsar-hjelp">Du må være 15 år eller eldre for å registrere deg</p>
+          <p class="hjelp feilmelding" id="fodselsar-feil" hidden></p>
+        </div>
+
+        <!-- Honningkrukke mot roboter: skjult for mennesker og skjermlesere -->
+        <div class="hp" aria-hidden="true">
+          <label for="nettside">Nettside</label>
+          <input id="nettside" name="nettside" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="samtykke">
+          <input id="samtykke" name="samtykke" type="checkbox" required>
+          <label for="samtykke">Jeg samtykker i at mine personopplysninger kan brukes i henhold til
+            <a id="personvern-lenke" href="https://www.tvaksjonen.no/personvern" target="_blank" rel="noopener">retningslinjene for personvern</a></label>
+        </div>
+
+        <div class="knapper">
+          <button type="submit" id="send" class="knapp knapp--marine knapp--firkant" disabled>Registrer deg</button>
+          <button type="button" class="lenkeknapp" data-gaa="sted">Tilbake</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Kvittering -->
+    <section id="view-takk" class="view" hidden aria-labelledby="takk-tittel">
+      <div class="hero hero--hoy"><img src="/img/hero-2.jpg" alt="" width="531" height="378"></div>
+      <div class="kort kort--erklaering">
+        <div class="kort__topp kort__topp--tekst">
+          <h1 id="takk-tittel" class="erklaering" tabindex="-1">Tusen takk, <span id="t-navn"></span>!</h1>
+          <p>Du er registrert som bøssebærer søndag 18. oktober.</p>
+        </div>
+        <div class="kort__band kort__band--fet">Vi sees <span class="hjerte" aria-hidden="true">♥</span></div>
+      </div>
+      <div class="innhold">
+        <div class="detaljer">
+          <p><strong>Oppmøtested:</strong> <span id="t-sted"></span></p>
+          <p><strong>Oppmøte:</strong> <span id="t-tid"></span></p>
+          <p><strong>Adresse:</strong> <span id="t-adresse"></span></p>
+        </div>
+        <p>Ta gjerne med deg en venn eller to – vi går sammen for mennesker på flukt.</p>
+        <div class="knapper">
+          <button type="button" class="lenkeknapp" data-gaa="start">Til forsiden</button>
+        </div>
+      </div>
+    </section>
+
+    <noscript><p class="innhold">Påmeldingen krever JavaScript. Skru det på i nettleseren og last siden på nytt.</p></noscript>
+  </main>
+</body>
+</html>
