@@ -55,17 +55,25 @@
 
   // ---------- Navigasjon ----------
 
-  function gaaTil(view, { erstatt = false } = {}) {
-    const hash = view === 'start' ? '#/' : `#/${view}`;
-    if (location.hash !== hash) {
-      erstatt ? history.replaceState(null, '', hash) : history.pushState(null, '', hash);
-    }
-    visView();
+  function viewFraHash() {
+    const v = (location.hash.replace(/^#\/?/, '') || 'start').split('?')[0];
+    return VIEWS.includes(v) ? v : 'start';
   }
 
-  function visView() {
-    let view = (location.hash.replace(/^#\/?/, '') || 'start').split('?')[0];
-    if (!VIEWS.includes(view)) view = 'start';
+  function gaaTil(view, { erstatt = false } = {}) {
+    const hash = view === 'start' ? '#/' : `#/${view}`;
+    // Historikken er en bekvemmelighet (tilbakeknapp); visningen fungerer også uten,
+    // f.eks. i innebygde rammer der pushState er blokkert.
+    try {
+      if (location.hash !== hash) {
+        erstatt ? history.replaceState(null, '', hash) : history.pushState(null, '', hash);
+      }
+    } catch { /* ignorer */ }
+    visView(view);
+  }
+
+  function visView(onsket) {
+    let view = typeof onsket === 'string' ? onsket : viewFraHash();
     if (view === 'skjema' && !state.valgtStedId) view = 'sted';
     if (view === 'takk' && !state.kvittering) view = 'start';
 
@@ -343,8 +351,8 @@
     // mister fokus, flytter innholdet under og kan gjøre at klikket på neste element går tapt.
     $('skjema').addEventListener('submit', sendInn);
 
-    window.addEventListener('popstate', visView);
-    window.addEventListener('hashchange', visView);
+    window.addEventListener('popstate', () => visView());
+    window.addEventListener('hashchange', () => visView());
 
     fetch('/api/konfig')
       .then((r) => (r.ok ? r.json() : null))
