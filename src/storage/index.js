@@ -12,11 +12,15 @@ function lagStorage(env = process.env) {
       prefiks: env.FIRESTORE_PREFIX || '',
     });
   }
+  if (type === 'supabase') {
+    const { SupabaseStorage } = require('./supabase');
+    return new SupabaseStorage({ url: env.SUPABASE_URL, nokkel: env.SUPABASE_SERVICE_ROLE_KEY });
+  }
   if (type === 'sqlite') {
     const { SqliteStorage } = require('./sqlite');
     return new SqliteStorage({ fil: env.SQLITE_FILE || path.join(__dirname, '..', '..', 'var', 'pameldinger.db') });
   }
-  throw new Error(`Ukjent STORAGE="${type}". Bruk "sqlite" eller "firestore".`);
+  throw new Error(`Ukjent STORAGE="${type}". Bruk "sqlite", "supabase" eller "firestore".`);
 }
 
 module.exports = { lagStorage };

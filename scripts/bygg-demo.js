@@ -16,7 +16,7 @@ const les = (f) => fs.readFileSync(path.join(ROT, f), 'utf8');
 const dataUri = (f, type) => `data:${type};base64,${fs.readFileSync(path.join(ROT, f)).toString('base64')}`;
 
 function main() {
-  const { formaterTid } = require('../src/app');
+  const { formaterTid } = require('../src/hjelpere');
   const data = JSON.parse(les('data/oppmotesteder.json'));
 
   // Samme felt som /api/oppmotesteder returnerer

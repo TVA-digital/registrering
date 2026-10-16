@@ -3,6 +3,12 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // PHP-pakken (webhotell) bruker api.php, Vercel/Node bruker /api/admin/*. Velges med <html data-api="php">.
+  const url = document.documentElement.dataset.api === 'php'
+    ? (handling) => `api.php?handling=${handling}`
+    : (handling) => `/api/admin/${handling}`;
+  $('eksport').href = url('eksport');
+
   function vis(seksjon) {
     $('laster').hidden = true;
     $('innlogging').hidden = seksjon !== 'innlogging';
@@ -16,7 +22,7 @@
   }
 
   async function api(handling, { metode = 'GET', body } = {}) {
-    const res = await fetch(`api.php?handling=${handling}`, {
+    const res = await fetch(url(handling), {
       method: metode,
       credentials: 'same-origin',
       headers: body ? { 'Content-Type': 'application/json', Accept: 'application/json' } : { Accept: 'application/json' },
@@ -34,7 +40,10 @@
       if (status !== 200) throw new Error(data.feil || `HTTP ${status}`);
 
       $('totalt').textContent = data.totalt;
-      $('siste').textContent = data.sistePamelding ? `Siste påmelding: ${data.sistePamelding}` : 'Ingen påmeldinger ennå.';
+      $('siste').textContent = data.sistePamelding
+        ? `Siste påmelding: ${data.sistePamelding}`
+        : data.totalt === 0 ? 'Ingen påmeldinger ennå.' : '';
+      $('siste').hidden = !$('siste').textContent;
       const rader = data.perFylke.map((r) => {
         const tr = document.createElement('tr');
         const f = document.createElement('td');

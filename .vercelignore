@@ -1,0 +1,8 @@
+php
+dist
+var
+test
+supabase
+Dockerfile
+deploy-cloudrun.sh
+*.csv

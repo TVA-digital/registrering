@@ -62,10 +62,10 @@ function main() {
   if (/(?:src|href)="\/(?!\/)/.test(index)) throw new Error('index.html har fortsatt absolutte stier');
   fs.writeFileSync(path.join(UT, 'index.html'), index);
 
-  for (const f of ['styles.css', 'app.js', 'admin.css', 'img/hero-1.jpg', 'img/hero-2.jpg', 'img/kampanje.png']) {
+  for (const f of ['styles.css', 'app.js', 'admin.css', 'admin.js', 'img/hero-1.jpg', 'img/hero-2.jpg', 'img/kampanje.png']) {
     kopier(path.join(ROT, 'public', f), path.join(UT, f));
   }
-  for (const f of ['api.php', 'config.php', 'sjekk.php', 'admin.html', 'admin.js', '.htaccess', 'data/.htaccess', 'data/index.html']) {
+  for (const f of ['api.php', 'config.php', 'sjekk.php', 'admin.html', '.htaccess', 'data/.htaccess', 'data/index.html']) {
     kopier(path.join(ROT, 'php', f), path.join(UT, f));
   }
   kopier(path.join(ROT, 'data', 'oppmotesteder.json'), path.join(UT, 'data', 'oppmotesteder.json'));

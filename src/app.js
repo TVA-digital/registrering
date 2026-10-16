@@ -6,23 +6,9 @@ const express = require('express');
 const compression = require('compression');
 const { AppError } = require('./feil');
 const { validerPamelding } = require('./validering');
+const { maksForBackup, stederForApi, stedForKvittering, lagCsv, csvFilnavn, oppsummering } = require('./hjelpere');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
-const TIDSSONE = 'Europe/Oslo';
-
-function formaterTid(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  const dato = d.toLocaleDateString('nb-NO', { timeZone: TIDSSONE, day: '2-digit', month: '2-digit', year: 'numeric' });
-  const kl = d.toLocaleTimeString('nb-NO', { timeZone: TIDSSONE, hour: '2-digit', minute: '2-digit' });
-  return `${dato}, kl. ${kl}`;
-}
-
-function maksForBackup(sted) {
-  if (!sted.autoStenging || sted.onsket == null) return null;
-  return Math.max(0, sted.onsket - sted.pameldtHovedsystem);
-}
 
 /** Enkel rate limiting per IP i minnet (per instans). */
 function rateLimiter({ vindu = 60_000, maks = 10 } = {}) {
@@ -46,13 +32,6 @@ function rateLimiter({ vindu = 60_000, maks = 10 } = {}) {
     }
     next();
   };
-}
-
-function csvCelle(v) {
-  let s = v == null ? '' : String(v);
-  // Hindrer formel-injeksjon når fila åpnes i Excel.
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
-  return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 function adminAuth(passord) {
@@ -148,22 +127,7 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
         antall = new Map();
       }
       res.set('Cache-Control', 'public, max-age=15');
-      res.json(
-        steder.map((s) => {
-          const maks = maksForBackup(s);
-          return {
-            id: s.id,
-            navn: s.navn,
-            fylke: s.fylke,
-            kommune: s.kommune,
-            adresse: [s.gate, [s.postnr, s.poststed].filter(Boolean).join(' ')].filter(Boolean).join(', '),
-            tid: formaterTid(s.tid),
-            tilgjengelighet: s.tilgjengelighet,
-            fullt: maks !== null && (antall.get(s.id) || 0) >= maks,
-            fulltTekst: s.fulltTekst,
-          };
-        })
-      );
+      res.json(stederForApi(steder, antall));
     } catch (err) {
       next(err);
     }
@@ -187,14 +151,7 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
         const { id } = await storage.opprett(reg, { maksBackup: maksForBackup(sted), fulltTekst: sted.fulltTekst });
         antallCache.tid = 0;
         logger.info(`Ny påmelding ${id} til ${sted.id} (${sted.navn})`);
-        res.status(201).json({
-          ok: true,
-          sted: {
-            navn: sted.navn,
-            adresse: [sted.gate, [sted.postnr, sted.poststed].filter(Boolean).join(' ')].filter(Boolean).join(', '),
-            tid: formaterTid(sted.tid),
-          },
-        });
+        res.status(201).json({ ok: true, sted: stedForKvittering(sted) });
       } catch (err) {
         next(err);
       }
@@ -206,24 +163,13 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
 
     app.get('/admin/registreringer.csv', auth, async (req, res, next) => {
       try {
-        const regs = await storage.alle();
-        const hode = ['Registrert', 'Fornavn', 'Etternavn', 'E-post', 'Telefon', 'Fødselsår', 'Fylke',
-          'Kommune', 'Oppmøtested', 'Oppmøtested-ID', 'Adresse', 'Oppmøtetid', 'Samtykke'];
-        const linjer = regs.map((r) => {
-          const s = stedMap.get(r.stedId) || {};
-          return [
-            formaterTid(r.opprettet), r.fornavn, r.etternavn, r.epost, r.telefon, r.fodselsar, s.fylke,
-            s.kommune, s.navn, r.stedId, [s.gate, [s.postnr, s.poststed].filter(Boolean).join(' ')].filter(Boolean).join(', '),
-            formaterTid(s.tid), r.samtykke ? 'Ja' : 'Nei',
-          ].map(csvCelle).join(';');
-        });
-        const stempel = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+        const csv = lagCsv(await storage.alle(), stedMap);
         res.set({
           'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': `attachment; filename="pameldinger-backup-${stempel}.csv"`,
+          'Content-Disposition': `attachment; filename="${csvFilnavn()}"`,
           'Cache-Control': 'no-store',
         });
-        res.send('﻿' + [hode.join(';'), ...linjer].join('\r\n') + '\r\n');
+        res.send(csv);
       } catch (err) {
         next(err);
       }
@@ -232,16 +178,9 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
     app.get('/admin', auth, async (req, res, next) => {
       try {
         const antall = await antallPerSted({ fersk: true });
-        const perFylke = new Map();
-        let totalt = 0;
-        for (const [id, n] of antall) {
-          const fylke = stedMap.get(id)?.fylke || 'Ukjent';
-          perFylke.set(fylke, (perFylke.get(fylke) || 0) + n);
-          totalt += n;
-        }
-        const rader = [...perFylke]
-          .sort((a, b) => b[1] - a[1])
-          .map(([f, n]) => `<tr><td>${escapeHtml(f)}</td><td class="tall">${n}</td></tr>`)
+        const { totalt, perFylke } = oppsummering(antall, stedMap);
+        const rader = perFylke
+          .map(({ fylke, antall: n }) => `<tr><td>${escapeHtml(fylke)}</td><td class="tall">${n}</td></tr>`)
           .join('');
         res.set('Cache-Control', 'no-store');
         res.send(`<!doctype html><html lang="nb"><head><meta charset="utf-8">
@@ -259,6 +198,9 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
       }
     });
   }
+
+  // admin.html brukes på Vercel og webhotell. Node-serveren har sin egen /admin med Basic Auth.
+  app.get('/admin.html', (req, res) => res.redirect(302, '/admin'));
 
   app.use(
     express.static(PUBLIC_DIR, {
@@ -290,4 +232,4 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
   return app;
 }
 
-module.exports = { lagApp, formaterTid, csvCelle, maksForBackup };
+module.exports = { lagApp };

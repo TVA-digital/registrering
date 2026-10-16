@@ -28,7 +28,42 @@ Scriptet tar bare med steder som er åpne og ikke skjult (bruk `--inkluder-steng
 
 Kapasiteten regnes slik: Står «Automatisk stenging» på et sted, tar backupen imot påmeldinger til antall påmeldte i eksporten pluss påmeldingene i backupen når «Ønsket antall bøssebærere». Deretter vises stedet som fullt med «Fullt tilleggstekst». Steder uten automatisk stenging stenges aldri. Importer en fersk eksport rett før backupen aktiveres, så tallene stemmer best mulig.
 
-## Webhotell med PHP (enklest)
+## Drift på Vercel + Supabase (anbefalt)
+
+Vercel serverer skjemaet og kjører API-et som serverløse funksjoner (`api/`). Supabase lagrer påmeldingene i Postgres. Begge har gratisnivå. Velg EU-regioner, så holdes dataene innenfor EØS: Supabase i Stockholm (`eu-north-1`), og Vercel-funksjonene står i Stockholm (`arn1`, satt i `vercel.json`).
+
+### 1. Supabase
+
+1. Opprett et prosjekt på [supabase.com](https://supabase.com). Velg regionen **North EU (Stockholm)** og et sterkt databasepassord.
+2. Åpne **SQL Editor → New query**, lim inn hele `supabase/schema.sql` og trykk **Run**.
+3. Hent to verdier under **Project Settings → API Keys / Data API**: prosjekt-URL-en (`https://<ref>.supabase.co`) og **service role**-nøkkelen (eller en *secret key*, `sb_secret_…`).
+
+Tabellene har Row Level Security uten policyer, og rollene `anon` og `authenticated` har ingen rettigheter. Bare Vercel-funksjonene, med service role-nøkkelen, kan lese og skrive. Den offentlige anon-nøkkelen brukes ikke i det hele tatt. Unik e-post, kapasitet per oppmøtested og rate limiting håndheves i databasefunksjoner i én transaksjon.
+
+### 2. Vercel
+
+1. Gå til [vercel.com/new](https://vercel.com/new) og importer GitHub-repoet `TVA-digital/registrering` (velg branchen med koden, eller merge den til `main` først). Alle innstillinger hentes fra `vercel.json`, så du trenger ikke endre noe der.
+2. Legg inn disse under **Environment Variables** før du trykker **Deploy**:
+
+| Variabel | Verdi |
+|---|---|
+| `SUPABASE_URL` | `https://<ref>.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | service role- eller secret-nøkkelen. Den er hemmelig og skal bare inn her |
+| `ADMIN_PASSWORD` | passord til `/admin`, minst 12 tegn |
+| `PRIVACY_URL` | valgfritt: lenken til personvernerklæringen |
+
+3. Etter deploy finner du påmeldingen på `https://<prosjekt>.vercel.app` og admin på `https://<prosjekt>.vercel.app/admin`. Eget domene kan legges til under **Settings → Domains**.
+
+Svaret fra `/api/oppmotesteder` caches i 15 sekunder i Vercels CDN, så databasen tåler stor pågang. Vercels Hobby-plan er bare for ikke-kommersiell bruk. For en organisasjon bør dere bruke Pro-planen, eller sjekke vilkårene for ideelle organisasjoner.
+
+### Teste Vercel-oppsettet lokalt
+
+```bash
+ADMIN_PASSWORD='et-langt-passord' npm run vercel:lokal          # SQLite i var/
+SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… ADMIN_PASSWORD=… npm run vercel:lokal   # mot Supabase
+```
+
+## Webhotell med PHP
 
 Har dere et vanlig webhotell med PHP, for eksempel Domeneshop, One.com eller Webhuset, kan løsningen lastes opp som filer. Den trenger ingen Node.js og ingen egen server.
 
@@ -44,7 +79,7 @@ Zip-fila har `index.html` (påmeldingen), `admin.html` (oversikt og CSV-eksport)
 
 Krav: PHP 7.4 eller nyere med `pdo_sqlite`, Apache med `.htaccess`, og HTTPS. Kildefilene ligger i `php/`.
 
-## Drift på Google Cloud (anbefalt)
+## Drift på Google Cloud
 
 Løsningen er laget for Cloud Run med Firestore som database. Den skalerer automatisk ved stor pågang. Unik e-post og kapasitet per oppmøtested håndheves i én Firestore-transaksjon, så det holder også med mange instanser samtidig.
 
@@ -79,7 +114,8 @@ docker run -p 8080:8080 -v pamelding-data:/app/var -e ADMIN_PASSWORD='…' pamel
 | Variabel | Standard | Beskrivelse |
 |---|---|---|
 | `PORT` | `8080` | Port serveren lytter på |
-| `STORAGE` | `sqlite` | `sqlite` eller `firestore` |
+| `STORAGE` | `sqlite` | `sqlite`, `supabase` eller `firestore` (Vercel-funksjonene bruker `supabase`) |
+| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | – | Tilkobling til Supabase |
 | `SQLITE_FILE` | `var/pameldinger.db` | Databasefil for SQLite |
 | `GOOGLE_CLOUD_PROJECT` | – | GCP-prosjekt for Firestore (settes automatisk på Cloud Run) |
 | `FIRESTORE_DATABASE` | `(default)` | Navn på Firestore-database |
@@ -93,7 +129,7 @@ docker run -p 8080:8080 -v pamelding-data:/app/var -e ADMIN_PASSWORD='…' pamel
 
 Skjemaet valideres både i nettleseren og på serveren. Det har en usynlig «honningkrukke» mot roboter og en begrensning på 10 innsendinger per minutt per IP. Hver e-postadresse kan bare brukes én gang, uansett store eller små bokstaver. Serveren sender med en streng Content-Security-Policy. Admin er beskyttet med Basic Auth over HTTPS, og CSV-eksporten er sikret mot formel-injeksjon i Excel.
 
-Backupen lagrer navn, e-post, telefon og fødselsår, og at personen har samtykket. Slett databasen når påmeldingene er overført til Aksjonsportalen. I Firestore sletter du samlingene `registreringer`, `epostindeks` og `tellere`.
+Backupen lagrer navn, e-post, telefon og fødselsår, og at personen har samtykket. Slett databasen når påmeldingene er overført til Aksjonsportalen. I Firestore sletter du samlingene `registreringer`, `epostindeks` og `tellere`. I Supabase kjører du `truncate public.registreringer, public.forsok;` i SQL Editor, eller sletter hele prosjektet.
 
 ## Struktur
 
@@ -103,6 +139,10 @@ src/app.js                    Express-app: API, admin, statiske filer
 src/validering.js             validering og normalisering av påmeldinger
 src/storage/sqlite.js         lagring for én server / lokalt
 src/storage/firestore.js      lagring for Cloud Run
+src/storage/supabase.js       lagring i Supabase
+src/vercel.js, api/           Vercel-funksjoner (oppmøtesteder, påmelding, admin)
+supabase/schema.sql           tabeller, tilgangsstyring og databasefunksjoner
+php/                          PHP-versjon for webhotell
 public/                       frontend (index.html, styles.css, app.js, bilder)
 scripts/import-oppmotesteder.js   CSV → data/oppmotesteder.json
 ```

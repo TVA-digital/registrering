@@ -34,6 +34,8 @@ class SqliteStorage {
         samtykke    INTEGER NOT NULL DEFAULT 1
       );
       CREATE INDEX IF NOT EXISTS idx_reg_sted ON registreringer(sted_id);
+      CREATE TABLE IF NOT EXISTS forsok (nokkel TEXT NOT NULL, tid INTEGER NOT NULL);
+      CREATE INDEX IF NOT EXISTS idx_forsok ON forsok(nokkel, tid);
     `);
     this.stmt = {
       tell: this.db.prepare('SELECT COUNT(*) AS n FROM registreringer WHERE sted_id = ?'),
@@ -43,6 +45,9 @@ class SqliteStorage {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`),
       perSted: this.db.prepare('SELECT sted_id, COUNT(*) AS n FROM registreringer GROUP BY sted_id'),
       alle: this.db.prepare('SELECT * FROM registreringer ORDER BY opprettet'),
+      ryddForsok: this.db.prepare('DELETE FROM forsok WHERE tid < ?'),
+      tellForsok: this.db.prepare('SELECT COUNT(*) AS n FROM forsok WHERE nokkel = ? AND tid > ?'),
+      settForsok: this.db.prepare('INSERT INTO forsok (nokkel, tid) VALUES (?, ?)'),
     };
   }
 
@@ -88,6 +93,14 @@ class SqliteStorage {
       stedId: r.sted_id,
       samtykke: Boolean(r.samtykke),
     }));
+  }
+
+  async begrens(nokkel, maks, vinduSek) {
+    const na = Date.now();
+    this.stmt.ryddForsok.run(na - 3_600_000);
+    if (this.stmt.tellForsok.get(nokkel, na - vinduSek * 1000).n >= maks) return false;
+    this.stmt.settForsok.run(nokkel, na);
+    return true;
   }
 
   async sjekk() {

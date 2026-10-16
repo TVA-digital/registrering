@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { lagApp, csvCelle } = require('../src/app');
+const { lagApp } = require('../src/app');
+const { csvCelle } = require('../src/hjelpere');
 const { SqliteStorage } = require('../src/storage/sqlite');
 
 const data = {
