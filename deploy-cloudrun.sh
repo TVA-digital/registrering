@@ -12,6 +12,12 @@ SECRET="${SECRET:-pamelding-admin-passord}"
 
 gcloud config set project "$PROJECT_ID" >/dev/null
 
+if [[ "$(gcloud billing projects describe "$PROJECT_ID" --format='value(billingEnabled)' 2>/dev/null)" != "True" ]]; then
+  echo "✘ Fakturering er ikke aktivert for $PROJECT_ID."
+  echo "  Gå til https://console.cloud.google.com/billing/linkedaccount?project=$PROJECT_ID og koble på en faktureringskonto."
+  exit 1
+fi
+
 echo "→ Aktiverer nødvendige API-er …"
 gcloud services enable run.googleapis.com firestore.googleapis.com cloudbuild.googleapis.com \
   artifactregistry.googleapis.com secretmanager.googleapis.com
@@ -32,12 +38,16 @@ PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(project
 RUN_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 gcloud secrets add-iam-policy-binding "$SECRET" --member="serviceAccount:$RUN_SA" \
   --role=roles/secretmanager.secretAccessor >/dev/null
-gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:$RUN_SA" \
-  --role=roles/datastore.user --condition=None >/dev/null
+# Tjenestekontoen trenger Firestore-tilgang, og på nye prosjekter også rettighet til å bygge fra kildekode
+for ROLE in roles/datastore.user roles/cloudbuild.builds.builder roles/logging.logWriter roles/artifactregistry.writer roles/storage.objectViewer; do
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:$RUN_SA" \
+    --role="$ROLE" --condition=None >/dev/null
+done
 
 echo "→ Bygger og deployer til Cloud Run …"
 gcloud run deploy "$SERVICE" \
   --source . \
+  --quiet \
   --region "$REGION" \
   --allow-unauthenticated \
   --min-instances 1 \
