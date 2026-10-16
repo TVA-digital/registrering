@@ -54,6 +54,8 @@ Tabellene har Row Level Security uten policyer, og rollene `anon` og `authentica
 
 3. Etter deploy finner du påmeldingen på `https://<prosjekt>.vercel.app` og admin på `https://<prosjekt>.vercel.app/admin`. Eget domene kan legges til under **Settings → Domains**.
 
+Bruker dere Vercels Hobby-plan, må den siste commiten på branchen være laget av samme GitHub-konto som eier Vercel-kontoen. Ellers avviser Vercel deployen.
+
 Svaret fra `/api/oppmotesteder` caches i 15 sekunder i Vercels CDN, så databasen tåler stor pågang. Vercels Hobby-plan er bare for ikke-kommersiell bruk. For en organisasjon bør dere bruke Pro-planen, eller sjekke vilkårene for ideelle organisasjoner.
 
 ### Teste Vercel-oppsettet lokalt
