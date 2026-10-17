@@ -1,0 +1,133 @@
+:root {
+  --marine: #0a2343;
+  --marine-hover: #1b355c;
+  --lysblaa: #d4eefc;
+  --gra: #f7f4f2;
+  --kant: #e5e2df;
+  --tekst: #000000;
+  --dempet: #4a4a4a;
+  --hvit: #ffffff;
+  --ute: #FEC864;
+  --levert: #83D499;
+  --feil: #990D40;
+  --feil-bg: #FFC7BD;
+  --fokus: #FF7461;
+  --skygge: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font: Arial, Helvetica, sans-serif;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--gra);
+  color: var(--tekst);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.visuelt-skjult {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.topp { background: var(--marine); color: var(--hvit); }
+.topp__innhold {
+  max-width: 760px; margin: 0 auto; padding: 12px 16px;
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+}
+.topp__tittel { margin: 0; font-weight: 700; }
+.topp__bruker { display: flex; gap: 12px; align-items: center; font-size: 0.875rem; }
+.lenke-lys { background: none; border: 0; color: var(--hvit); text-decoration: underline; font: inherit; cursor: pointer; padding: 6px 0; }
+
+.side { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.5rem; line-height: 1.25; margin: 0 0 8px; color: var(--marine); text-wrap: balance; }
+.dempet { color: var(--dempet); }
+.liten { font-size: 0.8rem; }
+
+.kort {
+  background: var(--hvit); border-radius: 8px; box-shadow: var(--skygge); padding: 24px;
+  display: grid; gap: 12px; max-width: 420px;
+}
+.kort label { font-weight: 700; }
+
+input[type="email"], input[type="text"], input[type="search"] {
+  width: 100%; font: inherit; font-size: 1rem; padding: 12px; min-height: 48px;
+  border: 1px solid #bcbcbc; border-radius: 4px; background: var(--hvit); color: var(--tekst);
+}
+#kode { font-size: 1.5rem; letter-spacing: 0.4em; text-align: center; font-variant-numeric: tabular-nums; }
+
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--fokus); outline-offset: 2px; }
+
+.knapp {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 48px; padding: 10px 20px; border: 0; border-radius: 4px;
+  background: var(--marine); color: var(--hvit); font: inherit; font-weight: 700; cursor: pointer;
+}
+.knapp:hover:not(:disabled) { background: var(--marine-hover); }
+.knapp:disabled { opacity: 0.6; cursor: progress; }
+.knapp--sekundar { background: var(--hvit); color: var(--marine); box-shadow: inset 0 0 0 1px var(--marine); }
+.knapp--sekundar:hover:not(:disabled) { background: var(--lysblaa); }
+.knapp--liten { min-height: 44px; padding: 8px 14px; font-weight: 400; }
+.knapp--ut { background: var(--marine); }
+.knapp--inn { background: #004952; }
+.knapp--inn:hover:not(:disabled) { background: #00363d; }
+.lenke { background: none; border: 0; color: var(--marine); text-decoration: underline; font: inherit; cursor: pointer; padding: 8px 0; justify-self: start; }
+
+.varsel { padding: 12px 16px; border-radius: 4px; margin: 0 0 16px; }
+.varsel--feil { background: var(--feil-bg); color: var(--tekst); border-left: 4px solid var(--feil); }
+.varsel:focus { outline: none; }
+
+/* Stedvalg */
+#sted-sok { margin: 8px 0 12px; }
+.stedliste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.stedliste button {
+  width: 100%; text-align: left; background: var(--hvit); border: 1px solid var(--kant); border-radius: 8px;
+  padding: 12px 16px; font: inherit; cursor: pointer; display: grid; gap: 2px; min-height: 56px;
+}
+.stedliste button:hover { border-color: var(--marine); }
+.stedliste strong { color: var(--marine); }
+.stedliste span { font-size: 0.875rem; color: var(--dempet); }
+
+/* Liste over bøssebærere */
+.stedhode { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.stedhode > div { min-width: 0; }
+.stedhode p { margin: 0; }
+
+.tellere { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+@media (min-width: 560px) { .tellere { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.teller {
+  background: var(--hvit); border: 1px solid var(--kant); border-radius: 8px; padding: 10px 12px;
+  font: inherit; font-size: 0.875rem; text-align: left; cursor: pointer; border-left: 6px solid var(--kant);
+}
+.teller span { display: block; font-size: 1.5rem; font-weight: 700; color: var(--marine); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.teller--ute { border-left-color: var(--ute); }
+.teller--levert { border-left-color: var(--levert); }
+.teller[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--marine); }
+
+.verktoy { display: flex; gap: 8px; }
+.verktoy input { flex: 1; min-width: 0; }
+#oppdatert { margin: 6px 0 12px; }
+
+.personliste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.person {
+  background: var(--hvit); border-radius: 8px; box-shadow: var(--skygge); padding: 12px 16px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center;
+  border-left: 6px solid var(--kant);
+}
+.person--ute { border-left-color: var(--ute); }
+.person--levert { border-left-color: var(--levert); }
+.person__navn { font-weight: 700; overflow-wrap: anywhere; }
+.person__info { font-size: 0.875rem; color: var(--dempet); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.person__info a { color: var(--marine); }
+.merke { display: inline-block; font-size: 0.75rem; padding: 1px 8px; border-radius: 999px; background: var(--lysblaa); color: var(--tekst); }
+.status { font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--gra); color: var(--tekst); white-space: nowrap; }
+.status--ute { background: var(--ute); }
+.status--levert { background: var(--levert); }
+.person__knapper { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.person__knapper .knapp { flex: 1 1 140px; }
+.person__knapper .knapp--sekundar { flex: 0 1 auto; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

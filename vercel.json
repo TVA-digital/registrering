@@ -20,7 +20,7 @@
       ]
     },
     {
-      "source": "/admin(.html)?",
+      "source": "/(admin|ansvarlig)(.html)?",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ]

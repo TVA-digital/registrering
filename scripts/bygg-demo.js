@@ -20,7 +20,7 @@ function main() {
   const data = JSON.parse(les('data/oppmotesteder.json'));
 
   // Samme felt som /api/oppmotesteder returnerer
-  const steder = data.steder.map((s) => ({
+  const steder = data.steder.filter((s) => s.pamelding !== false).map((s) => ({
     id: s.id,
     navn: s.navn,
     fylke: s.fylke,

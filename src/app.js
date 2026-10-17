@@ -6,7 +6,7 @@ const express = require('express');
 const compression = require('compression');
 const { AppError } = require('./feil');
 const { validerPamelding } = require('./validering');
-const { maksForBackup, stederForApi, stedForKvittering, lagCsv, csvFilnavn, oppsummering } = require('./hjelpere');
+const { maksForBackup, stederForApi, stedForKvittering, tarImotPamelding, lagCsv, csvFilnavn, oppsummering } = require('./hjelpere');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -146,7 +146,9 @@ function lagApp({ storage, data, adminPassord, personvernUrl, logger = console, 
         }
         const reg = validerPamelding(req.body);
         const sted = stedMap.get(reg.stedId);
-        if (!sted) throw new AppError('Oppmøtestedet finnes ikke.', { status: 400, kode: 'ugyldig', felt: 'stedId' });
+        if (!sted || !tarImotPamelding(sted)) {
+          throw new AppError('Oppmøtestedet tar ikke imot påmeldinger.', { status: 400, kode: 'ugyldig', felt: 'stedId' });
+        }
 
         const { id } = await storage.opprett(reg, { maksBackup: maksForBackup(sted), fulltTekst: sted.fulltTekst });
         antallCache.tid = 0;

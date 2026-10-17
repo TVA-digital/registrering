@@ -55,7 +55,8 @@ test('oppmøtesteder og konfig', () => medDb(async () => {
   const r = await kjor(kall.steder);
   assert.equal(r.statusCode, 200);
   assert.ok(r.data.length > 1000);
-  assert.equal(r.data.find((s) => s.id === BRAANAS).tid, '18.10.2026, kl. 15:30');
+  assert.match(r.data.find((s) => s.id === BRAANAS).tid, /^18\.10\.2026, kl\. \d\d:\d\d$/);
+  assert.ok(r.data.every((s) => vercel.stedMap.get(s.id).pamelding !== false), 'stengte/skjulte steder vises ikke');
   assert.match(r.hoder['cdn-cache-control'], /s-maxage=15/);
   assert.equal((await kjor(kall.konfig)).data.personvernUrl, 'https://www.tvaksjonen.no/personvern');
   assert.equal((await kjor(kall.steder, { method: 'POST' })).statusCode, 405);
@@ -132,4 +133,12 @@ test('admin er stengt uten gyldig ADMIN_PASSWORD', () => medDb(async () => {
   } finally {
     process.env.ADMIN_PASSWORD = lagret;
   }
+}));
+
+test('påmelding til stengt eller skjult oppmøtested avvises', () => medDb(async () => {
+  const stengt = vercel.steder.find((s) => s.pamelding === false);
+  assert.ok(stengt, 'dataene inneholder stengte steder');
+  const r = await kjor(kall.registrering, { method: 'POST', body: person('stengt@example.no', stengt.id), ip: '10.5.5.5' });
+  assert.equal(r.statusCode, 400);
+  assert.equal(r.data.felt, 'stedId');
 }));

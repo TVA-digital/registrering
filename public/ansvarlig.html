@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a2343">
+  <title>Bøssebærere – nødløsning for ansvarlige</title>
+  <link rel="stylesheet" href="/ansvarlig.css">
+  <script src="/ansvarlig.js" defer></script>
+</head>
+<body>
+  <header class="topp">
+    <div class="topp__innhold">
+      <p class="topp__tittel">Bøssebærere · nødløsning</p>
+      <div id="bruker" class="topp__bruker" hidden>
+        <span id="bruker-navn"></span>
+        <button type="button" id="loggut" class="lenke-lys">Logg ut</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="side">
+    <p id="laster" class="dempet">Laster …</p>
+    <div id="feil" class="varsel varsel--feil" role="alert" tabindex="-1" hidden></div>
+
+    <!-- Innlogging: steg 1 -->
+    <section id="vis-epost" hidden aria-labelledby="epost-tittel">
+      <h1 id="epost-tittel">Logg inn</h1>
+      <p>For oppmøteansvarlige, komitémedlemmer og fylkesaksjonsledere. Du får en engangskode på e-post.</p>
+      <form id="epost-skjema" class="kort" novalidate>
+        <label for="epost">E-postadressen du er registrert med i Aksjonsportalen</label>
+        <input id="epost" type="email" inputmode="email" autocomplete="email" required>
+        <button type="submit" class="knapp" id="send-kode">Send kode</button>
+      </form>
+    </section>
+
+    <!-- Innlogging: steg 2 -->
+    <section id="vis-kode" hidden aria-labelledby="kode-tittel">
+      <h1 id="kode-tittel">Skriv inn koden</h1>
+      <p id="kode-info"></p>
+      <form id="kode-skjema" class="kort" novalidate>
+        <label for="kode">6-sifret kode fra e-posten</label>
+        <input id="kode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required>
+        <button type="submit" class="knapp" id="logg-inn">Logg inn</button>
+        <button type="button" class="lenke" id="ny-kode">Send ny kode eller bruk en annen e-post</button>
+      </form>
+    </section>
+
+    <!-- Velg oppmøtested -->
+    <section id="vis-steder" hidden aria-labelledby="steder-tittel">
+      <h1 id="steder-tittel">Velg oppmøtested</h1>
+      <p id="steder-info" class="dempet"></p>
+      <label for="sted-sok" class="visuelt-skjult">Søk etter oppmøtested</label>
+      <input id="sted-sok" type="search" placeholder="Søk på sted, kommune eller fylke" autocomplete="off">
+      <ul id="sted-liste" class="stedliste"></ul>
+      <p id="sted-flere" class="dempet" hidden></p>
+    </section>
+
+    <!-- Bøssebærere på valgt sted -->
+    <section id="vis-liste" hidden aria-labelledby="sted-navn">
+      <div class="stedhode">
+        <div>
+          <h1 id="sted-navn"></h1>
+          <p id="sted-detaljer" class="dempet"></p>
+        </div>
+        <button type="button" id="bytt-sted" class="knapp knapp--sekundar knapp--liten" hidden>Bytt sted</button>
+      </div>
+
+      <div class="tellere" aria-live="polite">
+        <button type="button" class="teller" data-filter="alle"><span id="t-alle">0</span> påmeldt</button>
+        <button type="button" class="teller teller--ikke" data-filter="ikke"><span id="t-ikke">0</span> ikke møtt</button>
+        <button type="button" class="teller teller--ute" data-filter="ute"><span id="t-ute">0</span> ute med bøsse</button>
+        <button type="button" class="teller teller--levert" data-filter="levert"><span id="t-levert">0</span> levert</button>
+      </div>
+
+      <div class="verktoy">
+        <label for="sok" class="visuelt-skjult">Søk etter bøssebærer</label>
+        <input id="sok" type="search" placeholder="Søk på navn eller telefon" autocomplete="off">
+        <button type="button" id="oppdater" class="knapp knapp--sekundar knapp--liten">Oppdater</button>
+      </div>
+      <p id="oppdatert" class="dempet liten"></p>
+
+      <ul id="liste" class="personliste"></ul>
+      <p id="tom" class="dempet" hidden></p>
+    </section>
+  </main>
+</body>
+</html>

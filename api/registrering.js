@@ -2,7 +2,7 @@
 
 const { handler, hentStorage, lesJson, begrens, stedMap } = require('../src/vercel');
 const { validerPamelding } = require('../src/validering');
-const { maksForBackup, stedForKvittering } = require('../src/hjelpere');
+const { maksForBackup, stedForKvittering, tarImotPamelding } = require('../src/hjelpere');
 const { AppError } = require('../src/feil');
 
 const MAKS_PER_MINUTT = Number(process.env.MAKS_PER_MINUTT) || 10;
@@ -20,7 +20,9 @@ module.exports = handler(['POST'], async (req, res) => {
 
   const reg = validerPamelding(body);
   const sted = stedMap.get(reg.stedId);
-  if (!sted) throw new AppError('Oppmøtestedet finnes ikke.', { status: 400, kode: 'ugyldig', felt: 'stedId' });
+  if (!sted || !tarImotPamelding(sted)) {
+    throw new AppError('Oppmøtestedet tar ikke imot påmeldinger.', { status: 400, kode: 'ugyldig', felt: 'stedId' });
+  }
 
   const storage = await hentStorage();
   const { id } = await storage.opprett(reg, { maksBackup: maksForBackup(sted), fulltTekst: sted.fulltTekst });

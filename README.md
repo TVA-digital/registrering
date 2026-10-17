@@ -65,6 +65,40 @@ ADMIN_PASSWORD='et-langt-passord' npm run vercel:lokal          # SQLite i var/
 SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… ADMIN_PASSWORD=… npm run vercel:lokal   # mot Supabase
 ```
 
+## Nødmodul for ansvarlige (`/ansvarlig`)
+
+Hvis Aksjonsportalen er nede, kan oppmøteansvarlige, komitémedlemmer og fylkesaksjonsledere logge inn på `/ansvarlig` og sjekke bøssebærerne sine ut (henter bøsse) og inn (levert). Innloggingen skjer med en 6-sifret engangskode på e-post. Koden gjelder i 10 minutter, kan brukes én gang og tåler maks 5 feilforsøk. Koder lagres bare som HMAC. Alle handlinger logges i tabellen `hendelser` med hvem som gjorde hva.
+
+Hvem som ser hva:
+
+| Kilde | Tilgang |
+|---|---|
+| «Oppmøteansvarlig mail» i oppmøtested-eksporten | sitt oppmøtested |
+| Komité: «Tilgang til ett oppmøtested» | stedet |
+| Komité: «Tilgang til hele kommunen/komité» | alle steder i kommunen |
+| Komité: «Tilgang til hele fylket» | alle steder i fylket |
+| Komité: «Admin» med e-post på tvaksjonen.no / tv-aksjonen.no | hele landet |
+| `--nasjonal=a@x.no,b@y.no` | hele landet |
+
+Lista over bøssebærere inneholder alle som deltar i år fra Aksjonsportalen-eksporten, og i tillegg de som har meldt seg på i backupen.
+
+### Oppsett
+
+1. Kjør `supabase/schema-ansvarlig.sql` i Supabase (etter `schema.sql`).
+2. Opprett en konto på [resend.com](https://resend.com), verifiser et avsenderdomene (DNS-poster) og legg `RESEND_API_KEY` og `EPOST_AVSENDER` inn i Vercel.
+3. Importer data. Kjør uten `--skriv` først for å se tallene (tørrkjøring):
+
+```bash
+npm run import -- Oppmøtesteder.csv                     # oppmøtesteder (ingen persondata i repoet)
+export SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=…
+node scripts/import-ansvarlige.js --steder=Oppmøtesteder.csv --komite=Komitemedlemmer.csv --nasjonal=deg@tvaksjonen.no --skriv
+node scripts/import-bossebaerere.js BB.csv --skriv
+```
+
+Importene synkroniserer: personer som ikke lenger står i eksporten, fjernes. Statusene (ut/inn) beholdes. Kjør importen på nytt med ferske eksporter så tett opp mot aksjonen som mulig.
+
+Prøv modulen uten Supabase og Resend med `ADMIN_PASSWORD='…' npm run demo`. Den bruker fiktive data, og engangskodene skrives i terminalen.
+
 ## Webhotell med PHP
 
 Har dere et vanlig webhotell med PHP, for eksempel Domeneshop, One.com eller Webhuset, kan løsningen lastes opp som filer. Den trenger ingen Node.js og ingen egen server.
@@ -142,7 +176,13 @@ src/validering.js             validering og normalisering av påmeldinger
 src/storage/sqlite.js         lagring for én server / lokalt
 src/storage/firestore.js      lagring for Cloud Run
 src/storage/supabase.js       lagring i Supabase
-src/vercel.js, api/           Vercel-funksjoner (oppmøtesteder, påmelding, admin)
+src/vercel.js, api/           Vercel-funksjoner (oppmøtesteder, påmelding, admin, nødmodul)
+src/tilgang.js                hvem som ser hvilke oppmøtesteder
+src/storage/ansvarlig.js      datatilgang for nødmodulen
+src/epost.js                  engangskoder via Resend
+public/ansvarlig.*            nødmodulen for ansvarlige
+supabase/schema-ansvarlig.sql tabeller og funksjoner for nødmodulen
+scripts/import-*.js           import fra Aksjonsportalen-eksporter
 supabase/schema.sql           tabeller, tilgangsstyring og databasefunksjoner
 php/                          PHP-versjon for webhotell
 public/                       frontend (index.html, styles.css, app.js, bilder)

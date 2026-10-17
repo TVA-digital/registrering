@@ -25,7 +25,7 @@ function adresse(s) {
 
 /** Oppmøtestedene slik nettleseren får dem, med fullt-flagg ut fra antall påmeldte i backupen. */
 function stederForApi(steder, antall) {
-  return steder.map((s) => {
+  return steder.filter(tarImotPamelding).map((s) => {
     const maks = maksForBackup(s);
     return {
       id: s.id,
@@ -39,6 +39,11 @@ function stederForApi(steder, antall) {
       fulltTekst: s.fulltTekst,
     };
   });
+}
+
+/** Stengte og skjulte steder er med i dataene (for nødmodulen), men kan ikke velges ved påmelding. */
+function tarImotPamelding(sted) {
+  return sted.pamelding !== false;
 }
 
 function stedForKvittering(sted) {
@@ -88,6 +93,6 @@ function oppsummering(antall, stedMap) {
 }
 
 module.exports = {
-  TIDSSONE, formaterTid, maksForBackup, adresse, stederForApi, stedForKvittering,
+  TIDSSONE, formaterTid, maksForBackup, adresse, stederForApi, stedForKvittering, tarImotPamelding,
   csvCelle, lagCsv, csvFilnavn, oppsummering,
 };

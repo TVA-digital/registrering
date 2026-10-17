@@ -5,7 +5,10 @@
  * Konverterer eksporten av oppmøtesteder fra Aksjonsportalen (semikolonseparert CSV)
  * til data/oppmotesteder.json, som backup-løsningen bruker.
  *
- * Bruk:  node scripts/import-oppmotesteder.js <sti-til-eksport.csv> [--inkluder-stengte]
+ * Bruk:  node scripts/import-oppmotesteder.js <sti-til-eksport.csv>
+ *
+ * Alle steder tas med, fordi bøssebærere på stengte eller skjulte steder kan møte opp på aksjonsdagen
+ * (nødmodulen for ansvarlige). Feltet `pamelding` sier om stedet kan velges i det offentlige skjemaet.
  *
  * Personopplysninger om oppmøteansvarlige (navn, e-post, telefon) tas bevisst IKKE med,
  * siden JSON-fila serveres offentlig til nettleseren.
@@ -77,9 +80,8 @@ function normalizePlace(v) {
 function main() {
   const args = process.argv.slice(2);
   const file = args.find((a) => !a.startsWith('--'));
-  const includeClosed = args.includes('--inkluder-stengte');
   if (!file) {
-    console.error('Bruk: node scripts/import-oppmotesteder.js <eksport.csv> [--inkluder-stengte]');
+    console.error('Bruk: node scripts/import-oppmotesteder.js <eksport.csv>');
     process.exit(1);
   }
 
@@ -128,14 +130,10 @@ function main() {
       stats.ugyldig++;
       continue;
     }
-    if (bool(r[C.skjult])) {
-      stats.skjult++;
-      continue;
-    }
-    if (!bool(r[C.apent]) && !includeClosed) {
-      stats.stengt++;
-      continue;
-    }
+    const skjult = bool(r[C.skjult]);
+    const apent = bool(r[C.apent]);
+    if (skjult) stats.skjult++;
+    else if (!apent) stats.stengt++;
     seen.add(id);
 
     const kommune = clean(r[C.kommune]);
@@ -155,6 +153,7 @@ function main() {
       autoStenging: bool(r[C.autoStenging]),
       onsket: int(r[C.onsket]),
       pameldtHovedsystem: int(r[C.pameldte]) ?? 0,
+      pamelding: apent && !skjult,
     });
   }
 
@@ -177,7 +176,7 @@ function main() {
 
   console.log(
     `Skrev ${steder.length} oppmøtesteder til ${path.relative(process.cwd(), OUTPUT)} ` +
-      `(av ${stats.totalt}: ${stats.skjult} skjulte, ${stats.stengt} stengte, ${stats.ugyldig} ugyldige hoppet over)`
+      `(${stats.skjult} skjulte og ${stats.stengt} stengte er med, men kan ikke velges ved påmelding; ${stats.ugyldig} ugyldige hoppet over)`
   );
 }
 

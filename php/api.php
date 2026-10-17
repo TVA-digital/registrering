@@ -337,6 +337,9 @@ function handlingOppmotesteder(): void
     }
     $ut = [];
     foreach (steder() as $s) {
+        if (($s['pamelding'] ?? true) === false) {
+            continue; // stengte/skjulte steder vises ikke i skjemaet
+        }
         $maks = maksForBackup($s);
         $ut[] = [
             'id' => $s['id'],
@@ -369,8 +372,8 @@ function handlingRegistrering(): void
 
     $reg = validerPamelding($b);
     $steder = steder();
-    if (!isset($steder[$reg['stedId']])) {
-        throw new ApiFeil(400, 'ugyldig', 'Oppmøtestedet finnes ikke.', 'stedId');
+    if (!isset($steder[$reg['stedId']]) || ($steder[$reg['stedId']]['pamelding'] ?? true) === false) {
+        throw new ApiFeil(400, 'ugyldig', 'Oppmøtestedet tar ikke imot påmeldinger.', 'stedId');
     }
     $sted = $steder[$reg['stedId']];
     $maks = maksForBackup($sted);

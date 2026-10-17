@@ -12,6 +12,7 @@
     "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
     "import": "node scripts/import-oppmotesteder.js",
     "vercel:lokal": "node --disable-warning=ExperimentalWarning scripts/vercel-lokal.js",
+    "demo": "node --disable-warning=ExperimentalWarning scripts/vercel-lokal.js --demo",
     "test": "node --disable-warning=ExperimentalWarning --test \"test/*.test.js\""
   },
   "dependencies": {
